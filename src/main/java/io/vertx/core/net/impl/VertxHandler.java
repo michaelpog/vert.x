@@ -18,9 +18,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.vertx.core.Handler;
+import io.vertx.core.http.impl.DefaultHttpRequestWrapper;
 import io.vertx.core.impl.ContextInternal;
 
 /**
@@ -142,6 +144,10 @@ public abstract class   VertxHandler<C extends ConnectionBase> extends ChannelDu
 
   @Override
   public void channelRead(ChannelHandlerContext chctx, Object msg) throws Exception {
+    if(msg instanceof DefaultHttpRequest) {
+      msg = new DefaultHttpRequestWrapper((DefaultHttpRequest)msg);
+      ((DefaultHttpRequestWrapper)msg).captureTime(this.getClass().getSimpleName()+"channelRead");
+    }
     Object message = decode(msg, chctx.alloc());
     ContextInternal ctx = conn.getContext();
     ctx.executeFromIO(message, messageHandler);

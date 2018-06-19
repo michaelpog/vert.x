@@ -676,6 +676,9 @@ public class HttpServerImpl implements HttpServer, Closeable, MetricsProvider {
           }
         } else {
           //HTTP request
+          if(msg instanceof DefaultHttpRequestWrapper) {
+            ((DefaultHttpRequestWrapper)msg).captureTime(this.getClass().getSimpleName()+"handleMessage");
+          }
           conn.handleMessage(msg);
         }
       } else if (msg instanceof WebSocketFrameInternal) {

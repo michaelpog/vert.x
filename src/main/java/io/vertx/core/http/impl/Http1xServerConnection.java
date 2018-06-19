@@ -22,6 +22,7 @@ import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -139,8 +140,12 @@ public class Http1xServerConnection extends Http1xConnectionBase implements Http
 
   synchronized void handleMessage(Object msg) {
     if (queueing) {
+      log.warn("Httpx1ServerConnection queueing");
       enqueue(msg);
     } else {
+      if(msg instanceof DefaultHttpRequestWrapper) {
+        ((DefaultHttpRequestWrapper)msg).captureTime(this.getClass().getSimpleName()+"handleMessage");
+      }
       processMessage(msg);
     }
   }
@@ -448,6 +453,9 @@ public class Http1xServerConnection extends Http1xConnectionBase implements Http
         requestMetric = metrics.requestBegin(metric(), req);
       }
       if (requestHandler != null) {
+        if(request instanceof DefaultHttpRequestWrapper) {
+          ((DefaultHttpRequestWrapper)request).captureTime(this.getClass().getSimpleName()+"processMessage");
+        }
         requestHandler.handle(req);
       }
     } else if (msg == LastHttpContent.EMPTY_LAST_CONTENT) {

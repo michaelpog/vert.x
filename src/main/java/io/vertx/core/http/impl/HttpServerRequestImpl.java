@@ -457,6 +457,7 @@ public class HttpServerRequestImpl implements HttpServerRequest {
     return attributes;
   }
 
+  public HttpRequest getRequest() { return request;}
 
   private static String urlDecode(String str) {
     return QueryStringDecoder.decodeComponent(str, CharsetUtil.UTF_8);
